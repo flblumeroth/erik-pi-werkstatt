@@ -7,6 +7,7 @@ Zwei Projekte (und ein Bonus) für den Raspberry Pi mit 3,5"-Touch-Display — g
 | ⛅ **Wetterstation** | Holt das echte Wetter aus dem Internet und malt eigene Wettersymbole | [`code/wetterstation.py`](code/wetterstation.py) |
 | 📷 **Foto-Rahmen** | Zeigt deine Kamera-Fotos, blättern per Touch, Diashow | [`code/fotoanzeige.py`](code/fotoanzeige.py) |
 | 🌡️ **Bonus: micro:bit-Sensor** | Dein micro:bit (MakeCode!) misst die Zimmertemperatur und schickt sie an die Wetterstation | [`code/wetterstation_mit_microbit.py`](code/wetterstation_mit_microbit.py) |
+| 🕒 **Wanduhr** | Große Uhr mit Datum und Sekundenbalken — [Projekt zum Selbst-Knobeln](https://flblumeroth.github.io/erik-pi-werkstatt/projekt-uhr.html) | [`code/wanduhr.py`](code/wanduhr.py) |
 
 ## 👉 Hier geht's los
 
