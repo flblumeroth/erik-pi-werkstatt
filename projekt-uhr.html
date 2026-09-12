@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Die Wanduhr 🕒 · Eriks Raspberry-Pi-Werkstatt</title>
+<meta name="description" content="Bau dir eine große Uhr für dein Display — dein erstes eigenes Anzeige-Projekt, Schritt für Schritt zum Selbst-Knobeln.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --himmel:#19468C; --tiefe:#0E2A58; --beere:#E30B5C; --gelb:#FFD200;
+    --weiss:#FFFFFF; --hell:#DCE4F5; --papier:#FDFBF2; --tinte:#1B2A44; --gruen:#4CC66E;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+  body{
+    margin:0; font-family:"Baloo 2","Comic Sans MS",system-ui,sans-serif;
+    font-weight:500; font-size:1.06rem; line-height:1.65; color:var(--weiss);
+    background:linear-gradient(180deg, var(--tiefe) 0%, var(--himmel) 26rem);
+  }
+  main, .hero-innen, footer .fuss-innen{max-width:46rem;margin:0 auto;padding:0 1.1rem}
+  a{color:var(--gelb)}
+  a:focus-visible, summary:focus-visible{outline:3px solid var(--gelb);outline-offset:2px;border-radius:6px}
+  .hero{padding:2.2rem 0 .6rem;text-align:center}
+  .hero .zurueck{display:inline-block;margin-bottom:1rem;font-weight:700;text-decoration:none}
+  .hero h1{font-size:clamp(1.9rem,6vw,2.9rem);font-weight:800;line-height:1.12;margin:0 0 .4rem}
+  .hero p.unter{font-size:1.1rem;color:var(--hell);margin:0 auto 1.4rem;max-width:34rem}
+  .display{width:min(420px,92%);margin:0 auto;background:#20242B;border-radius:18px;padding:12px 12px 18px;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+  .display svg{display:block;width:100%;height:auto;border-radius:8px}
+  .display .steg{width:56px;height:6px;border-radius:3px;background:#3A404B;margin:10px auto 0}
+  section{margin:2.5rem 0}
+  h2{display:flex;align-items:center;gap:.65rem;font-size:1.55rem;font-weight:800;line-height:1.2;margin:0 0 1rem}
+  .nr{flex:0 0 auto;width:2.3rem;height:2.3rem;border-radius:50%;background:var(--beere);color:var(--weiss);display:flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:800}
+  p{margin:.7rem 0}
+  ul,ol{margin:.7rem 0;padding-left:1.4rem}
+  li{margin:.4rem 0}
+  strong{font-weight:800}
+  .klein{font-size:.92rem;color:var(--hell)}
+  pre{position:relative;background:var(--papier);color:var(--tinte);border-radius:12px;border-left:8px solid var(--gelb);padding:.9rem 1rem;margin:.9rem 0;overflow-x:auto;font-size:.92rem;line-height:1.5}
+  code{font-family:ui-monospace,"Cascadia Mono",Consolas,Menlo,monospace}
+  p code, li code, summary code{background:rgba(255,255,255,.14);border-radius:6px;padding:.06rem .38rem;font-size:.92em;color:var(--weiss)}
+  pre code{background:none;padding:0;color:inherit}
+  .merk{background:rgba(255,210,0,.12);border:2px dashed var(--gelb);border-radius:14px;padding:.9rem 1.1rem;margin:1.1rem 0}
+  details.loesung{background:rgba(0,0,0,.24);border-radius:14px;padding:.3rem 1rem;margin:.9rem 0}
+  details.loesung summary{cursor:pointer;font-weight:800;padding:.6rem 0;color:var(--gruen)}
+  details.loesung[open] summary{border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:.5rem}
+  details.papa{background:rgba(0,0,0,.24);border-radius:14px;padding:.3rem 1rem;margin:.9rem 0}
+  details.papa summary{cursor:pointer;font-weight:800;padding:.6rem 0}
+  footer{margin-top:3.5rem;padding:1.6rem 0 2.4rem;background:rgba(0,0,0,.22)}
+  footer p{margin:.3rem 0;color:var(--hell)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-innen">
+    <a class="zurueck" href="index.html">← zurück zur Werkstatt</a>
+    <h1>Extra-Projekt: Die Wanduhr&nbsp;🕒</h1>
+    <p class="unter">Dein erstes ganz eigenes Anzeige-Projekt: eine große Uhr mit Datum für dein Display. Kein Internet, kein Touch — nur du, Python und die Zeit. Jeder Schritt hat eine Aufgabe, einen Tipp und eine Lösung zum Aufklappen. <strong>Erst denken, dann spicken!</strong></p>
+    <div class="display" role="img" aria-label="Vorschau: das Display zeigt groß die Uhrzeit 15:42, darunter das Datum und einen gelben Sekundenbalken">
+      <svg viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="480" height="320" fill="#19468C"/>
+        <text x="240" y="150" text-anchor="middle" fill="#FFFFFF" font-family="Baloo 2, sans-serif" font-size="104" font-weight="800">15:42</text>
+        <text x="240" y="232" text-anchor="middle" fill="#DCE4F5" font-family="Baloo 2, sans-serif" font-size="30">Samstag, 12. September</text>
+        <rect x="0" y="306" width="296" height="14" fill="#FFD200"/>
+      </svg>
+      <div class="steg"></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section>
+    <h2>🎯 Das Ziel</h2>
+    <p>So soll deine Wanduhr am Ende aussehen:</p>
+    <ul>
+      <li>Die <strong>Uhrzeit riesengroß</strong> in der Mitte — immer aktuell</li>
+      <li>Darunter das <strong>Datum auf Deutsch</strong>: „Samstag, 12. September"</li>
+      <li>Unten ein <strong>gelber Balken</strong>, der mit jeder Sekunde ein Stück wächst und bei der vollen Minute wieder von vorn anfängt</li>
+    </ul>
+    <p>Alles, was du brauchst, kennst du aus Kapitel 1 bis 3: Fenster, Text anzeigen, eine Schleife. Neu ist nur ein einziger Trick: den Computer nach der Uhrzeit fragen.</p>
+  </section>
+
+  <section>
+    <h2><span class="nr">1</span> Der blaue Hintergrund</h2>
+    <p><strong>Aufgabe:</strong> Mach ein Fenster (480 × 320) mit himmelblauem Hintergrund, das offen bleibt, bis du ESC drückst. Speichere als <code>meine_uhr.py</code>.</p>
+    <div class="merk"><strong>Tipp:</strong> Das ist dein Programm aus Kapitel 2, ohne die Sonne. Himmelblau war <code>(25, 70, 130)</code>.</div>
+    <details class="loesung"><summary>Lösung anzeigen</summary>
+<pre><code>import pygame
+
+pygame.init()
+bildschirm = pygame.display.set_mode((480, 320))
+
+laeuft = True
+while laeuft:
+    for ereignis in pygame.event.get():
+        if ereignis.type == pygame.QUIT:
+            laeuft = False
+        if ereignis.type == pygame.KEYDOWN and ereignis.key == pygame.K_ESCAPE:
+            laeuft = False
+
+    bildschirm.fill((25, 70, 130))
+    pygame.display.flip()
+    pygame.time.wait(200)
+
+pygame.quit()</code></pre>
+      <p>Fällt dir auf: <code>fill</code> und <code>flip</code> stehen diesmal <strong>in</strong> der Schleife — das Bild wird also immer wieder neu gemalt. Genau das braucht eine Uhr, denn sie ändert sich ja ständig!</p>
+    </details>
+  </section>
+
+  <section>
+    <h2><span class="nr">2</span> Den Computer nach der Uhrzeit fragen</h2>
+    <p><strong>Aufgabe:</strong> Finde heraus, wie spät es ist — erstmal nur mit <code>print</code>, ohne pygame. Das geht mit zwei Zeilen!</p>
+    <div class="merk"><strong>Tipp:</strong> Der Baustein <code>time</code> kennt den Befehl <code>time.strftime("%H:%M:%S")</code> — er gibt dir die Uhrzeit als Text. Die komischen Zeichen sind Platzhalter: <code>%H</code> = Stunde, <code>%M</code> = Minute, <code>%S</code> = Sekunde.</div>
+    <details class="loesung"><summary>Lösung anzeigen</summary>
+<pre><code>import time
+
+print(time.strftime("%H:%M:%S"))</code></pre>
+      <p>Starte es ein paar Mal hintereinander — die Sekunden laufen! Probier auch mal <code>"%d.%m."</code> für das Datum.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2><span class="nr">3</span> Riesengroß anzeigen</h2>
+    <p><strong>Aufgabe:</strong> Bring die Uhrzeit in dein blaues Fenster aus Schritt 1 — schön groß und ungefähr in die Mitte. Und weil alles in der Schleife passiert, aktualisiert sich deine Uhr von ganz allein!</p>
+    <div class="merk"><strong>Tipp:</strong> Text anzeigen geht mit Schrift, <code>render</code> und <code>blit</code> (kennst du aus Kapitel 3, Schritt 2). Nimm <code>pygame.font.SysFont(None, 150)</code> — die 150 macht sie riesig. Hol dir die Uhrzeit <strong>in</strong> der Schleife neu, direkt vor dem Malen.</div>
+    <details class="loesung"><summary>Lösung anzeigen</summary>
+      <p>Oben, vor der Schleife (einmal reicht):</p>
+<pre><code>import time
+schrift_riesig = pygame.font.SysFont(None, 150)</code></pre>
+      <p>In der Schleife, nach dem <code>fill</code> und vor dem <code>flip</code>:</p>
+<pre><code>    uhrzeit = time.strftime("%H:%M")
+    bild = schrift_riesig.render(uhrzeit, True, (255, 255, 255))
+    bildschirm.blit(bild, (100, 75))</code></pre>
+      <p><strong>Knobelfrage für Profis:</strong> Wie bekommst du den Text <em>genau</em> in die Mitte, egal wie breit er ist? <code>bild.get_width()</code> verrät dir seine Breite … die Rechnung dazu steht in der Musterlösung (<code>mittig</code>-Funktion).</p>
+    </details>
+  </section>
+
+  <section>
+    <h2><span class="nr">4</span> Das Datum auf Deutsch</h2>
+    <p><strong>Aufgabe:</strong> Schreib unter die Uhrzeit das Datum wie ein echter Kalender: „Samstag, 12. September". Den Wochentag und den Monatsnamen baust du dir selbst — mit Listen!</p>
+    <div class="merk"><strong>Tipp:</strong> <code>jetzt = time.localtime()</code> gibt dir lauter Zahlen: <code>jetzt.tm_wday</code> ist der Wochentag (0 = Montag), <code>jetzt.tm_mday</code> der Tag, <code>jetzt.tm_mon</code> der Monat (1 = Januar). Mach dir zwei Listen <code>TAGE</code> und <code>MONATE</code> und hol den richtigen Namen mit <code>TAGE[jetzt.tm_wday]</code> heraus. Achtung beim Monat: Die Liste fängt bei 0 an, die Monate bei 1 — du brauchst also <code>- 1</code>!</div>
+    <details class="loesung"><summary>Lösung anzeigen</summary>
+<pre><code>TAGE = ["Montag", "Dienstag", "Mittwoch", "Donnerstag",
+        "Freitag", "Samstag", "Sonntag"]
+MONATE = ["Januar", "Februar", "M\u00e4rz", "April", "Mai", "Juni", "Juli",
+          "August", "September", "Oktober", "November", "Dezember"]</code></pre>
+      <p>In der Schleife:</p>
+<pre><code>    jetzt = time.localtime()
+    datum = (TAGE[jetzt.tm_wday] + ", " + str(jetzt.tm_mday) + ". "
+             + MONATE[jetzt.tm_mon - 1])
+    bild2 = schrift_mittel.render(datum, True, (220, 228, 245))
+    bildschirm.blit(bild2, (110, 210))</code></pre>
+      <p class="klein">(<code>schrift_mittel</code> legst du wie die riesige Schrift an, nur mit 42 statt 150.)</p>
+    </details>
+  </section>
+
+  <section>
+    <h2><span class="nr">5</span> Der Sekundenbalken</h2>
+    <p><strong>Aufgabe:</strong> Male unten einen gelben Balken, der mit jeder Sekunde ein Stück breiter wird. Bei Sekunde 0 ist er weg, bei Sekunde 59 fast über den ganzen Bildschirm — und dann geht's wieder von vorn los.</p>
+    <div class="merk"><strong>Tipp:</strong> Der Bildschirm ist 480 breit, eine Minute hat 60 Sekunden — wie breit muss der Balken also <strong>pro Sekunde</strong> wachsen? Die Sekunde als Zahl bekommst du mit <code>int(time.strftime("%S"))</code>, und ein Rechteck malen kannst du längst.</div>
+    <details class="loesung"><summary>Lösung anzeigen</summary>
+<pre><code>    sekunde = int(time.strftime("%S"))
+    pygame.draw.rect(bildschirm, (255, 210, 0), (0, 306, sekunde * 8, 14))</code></pre>
+      <p>480 geteilt durch 60 ist 8 — pro Sekunde wächst der Balken also 8 Kästchen. Fertig ist deine Wanduhr! 🎉 Die komplette Musterlösung mit allem zusammen: <a href="code/wanduhr.py"><code>code/wanduhr.py</code></a>.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>💻 Vom Notebook auf den Pi</h2>
+    <p>Am Notebook programmiert es sich bequemer — dein Programm läuft dort genauso, nur im Fenster statt auf dem Display. So kommt es fertig auf den Pi:</p>
+    <ol>
+      <li>Speichere deine Datei am Notebook im Werkstatt-Ordner unter <code>code/meine_uhr.py</code> (eigener Name — die Musterlösungen bleiben unberührt!)</li>
+      <li>Im Terminal am Notebook die drei Zauberwörter:
+<pre><code>git add .
+git commit -m "Meine Wanduhr"
+git push</code></pre></li>
+      <li>Auf dem Pi (Terminal oder SSH):
+<pre><code>cd /home/erik/erik-pi-werkstatt
+git pull
+python3 code/meine_uhr.py</code></pre>
+      <span class="klein">Aus einer SSH-Sitzung heraus: <code>DISPLAY=:0 python3 code/meine_uhr.py</code> — dann erscheint die Uhr auf dem Display.</span></li>
+    </ol>
+    <details class="papa"><summary>🔧 Für Papa: Notebook einmalig vorbereiten</summary>
+      <ul>
+        <li><strong>Thonny</strong> auf dem Notebook installieren (thonny.org) — es bringt sein eigenes Python mit</li>
+        <li><strong>pygame</strong> in Thonny nachrüsten: <em>Extras → Verwalte Pakete → „pygame" suchen → Installieren</em></li>
+        <li>Das Repo aufs Notebook clonen und Git-Zugang (Name, E-Mail, SSH-Key oder Token) einmal einrichten, damit <code>git push</code> ohne Nachfragen läuft</li>
+      </ul>
+    </details>
+  </section>
+
+  <section>
+    <h2>💡 Wenn sie läuft: Ausbau-Ideen</h2>
+    <ol>
+      <li><strong>Blinkender Doppelpunkt:</strong> In geraden Sekunden <code>"15:42"</code> anzeigen, in ungeraden <code>"15 42"</code> — der Trick heißt <code>sekunde % 2</code></li>
+      <li><strong>Nacht-Modus:</strong> Nach 20 Uhr den Hintergrund dunkler machen — <code>if jetzt.tm_hour</code> hilft dir</li>
+      <li><strong>Geburtstags-Zeile:</strong> An deinem Geburtstag soll unten „🎉 Heute ist mein Tag!" stehen</li>
+      <li><strong>Wecker:</strong> Zu einer bestimmten Uhrzeit wird der ganze Bildschirm gelb</li>
+      <li><strong>Die Königsdisziplin:</strong> Bau deine Uhr klein oben in die Wetterstation ein — dann hast du zwei Projekte verschmolzen</li>
+    </ol>
+  </section>
+
+</main>
+
+<footer>
+  <div class="fuss-innen">
+    <p><strong>Viel Spaß beim Tüfteln! ⏰</strong></p>
+    <p class="klein"><a href="index.html">← zurück zur Werkstatt</a> · Musterlösung: <a href="code/wanduhr.py">code/wanduhr.py</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
