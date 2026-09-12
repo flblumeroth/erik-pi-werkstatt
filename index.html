@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eriks Raspberry-Pi-Werkstatt 🍓</title>
+<meta name="description" content="Wetterstation und Foto-Rahmen für den Raspberry Pi — Schritt für Schritt von MakeCode zu Python.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --himmel:#19468C;      /* der Himmel aus Eriks Wetterstation */
+    --tiefe:#0E2A58;
+    --beere:#E30B5C;       /* Himbeere! */
+    --gelb:#FFD200;        /* die Sonne aus dem Projekt */
+    --weiss:#FFFFFF;
+    --hell:#DCE4F5;
+    --papier:#FDFBF2;      /* Thonny-Zettel für Code */
+    --tinte:#1B2A44;
+    --gruen:#4CC66E;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+  body{
+    margin:0;
+    font-family:"Baloo 2", "Comic Sans MS", system-ui, sans-serif;
+    font-weight:500;
+    font-size:1.06rem;
+    line-height:1.65;
+    color:var(--weiss);
+    background:linear-gradient(180deg, var(--tiefe) 0%, var(--himmel) 26rem);
+  }
+  main, .hero-innen, .nav-innen, footer .fuss-innen{max-width:46rem;margin:0 auto;padding:0 1.1rem}
+  a{color:var(--gelb)}
+  a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible{outline:3px solid var(--gelb);outline-offset:2px;border-radius:6px}
+
+  /* ---------- Hero ---------- */
+  .hero{padding:2.6rem 0 1.2rem;text-align:center}
+  .hero h1{font-size:clamp(2rem, 6vw, 3.1rem);font-weight:800;line-height:1.12;margin:0 0 .4rem}
+  .hero p.unter{font-size:1.12rem;color:var(--hell);margin:0 auto 1.6rem;max-width:34rem}
+  .display{
+    width:min(420px, 92%);
+    margin:0 auto;
+    background:#20242B;
+    border-radius:18px;
+    padding:12px 12px 18px;
+    box-shadow:0 14px 40px rgba(0,0,0,.35);
+  }
+  .display svg{display:block;width:100%;height:auto;border-radius:8px}
+  .display .steg{width:56px;height:6px;border-radius:3px;background:#3A404B;margin:10px auto 0}
+  .projekte{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:1.4rem 0 0;padding:0;list-style:none}
+  .projekte li{background:rgba(255,255,255,.10);border-radius:999px;padding:.32rem .9rem;font-weight:700}
+
+  /* ---------- Kapitel-Navigation ---------- */
+  .kapnav{position:sticky;top:0;z-index:5;background:rgba(14,42,88,.92);backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,.12);margin-top:1.6rem}
+  .nav-innen{display:flex;gap:.4rem;overflow-x:auto;padding-top:.55rem;padding-bottom:.55rem}
+  .nav-innen a{
+    flex:0 0 auto;text-decoration:none;color:var(--weiss);font-weight:700;font-size:.92rem;
+    background:rgba(255,255,255,.10);border-radius:999px;padding:.22rem .8rem;white-space:nowrap;
+  }
+  .nav-innen a.fertig{background:var(--gruen);color:#08331A}
+  .nav-innen a.fertig::after{content:" ✓"}
+
+  /* ---------- Abschnitte ---------- */
+  section, details.papa{margin:2.6rem 0}
+  h2{display:flex;align-items:center;gap:.65rem;font-size:1.62rem;font-weight:800;line-height:1.2;margin:0 0 1rem}
+  .nr{
+    flex:0 0 auto;width:2.3rem;height:2.3rem;border-radius:50%;
+    background:var(--beere);color:var(--weiss);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.15rem;font-weight:800;
+  }
+  h3{font-size:1.18rem;font-weight:800;color:var(--gelb);margin:1.7rem 0 .5rem}
+  p{margin:.7rem 0}
+  ul, ol{margin:.7rem 0;padding-left:1.4rem}
+  li{margin:.4rem 0}
+  strong{font-weight:800}
+  .klein{font-size:.92rem;color:var(--hell)}
+
+  /* ---------- Code (Thonny-Zettel) ---------- */
+  pre{
+    position:relative;
+    background:var(--papier);color:var(--tinte);
+    border-radius:12px;border-left:8px solid var(--gelb);
+    padding:.9rem 1rem;margin:.9rem 0;
+    overflow-x:auto;
+    font-size:.92rem;line-height:1.5;
+  }
+  code{font-family:ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace}
+  p code, li code, td code, summary code{
+    background:rgba(255,255,255,.14);border-radius:6px;padding:.06rem .38rem;font-size:.92em;color:var(--weiss)
+  }
+  details.papa p code, details.papa li code{background:rgba(0,0,0,.28)}
+  pre code{background:none;padding:0;color:inherit}
+  button.kopieren{
+    position:absolute;top:.5rem;right:.5rem;
+    font-family:inherit;font-weight:700;font-size:.78rem;
+    background:var(--himmel);color:var(--weiss);border:none;border-radius:8px;
+    padding:.25rem .6rem;cursor:pointer;
+  }
+  button.kopieren:hover{background:var(--beere)}
+
+  /* ---------- Tabellen ---------- */
+  .tabelle{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;margin:.9rem 0;font-size:.98rem}
+  th, td{text-align:left;padding:.5rem .7rem;border-bottom:1px solid rgba(255,255,255,.18);vertical-align:top}
+  th{color:var(--gelb);font-weight:800}
+
+  /* ---------- Kästen ---------- */
+  .merk{
+    background:rgba(255,210,0,.12);border:2px dashed var(--gelb);
+    border-radius:14px;padding: .9rem 1.1rem;margin:1.1rem 0;
+  }
+  details.papa{
+    background:rgba(0,0,0,.24);border-radius:16px;padding:.4rem 1.1rem;
+  }
+  details.papa summary{
+    cursor:pointer;font-size:1.2rem;font-weight:800;padding:.7rem 0;list-style-position:outside;
+  }
+  details.papa[open] summary{border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:.6rem}
+
+  /* ---------- Geschafft-Haken ---------- */
+  .geschafft{
+    display:inline-flex;align-items:center;gap:.5rem;
+    margin-top:1.2rem;padding:.4rem .9rem;border-radius:999px;
+    background:rgba(255,255,255,.10);font-weight:800;cursor:pointer;user-select:none;
+  }
+  .geschafft input{width:1.25rem;height:1.25rem;accent-color:var(--gruen);cursor:pointer}
+  .geschafft:has(input:checked){background:var(--gruen);color:#08331A}
+
+  footer{margin-top:3.5rem;padding:1.6rem 0 2.4rem;background:rgba(0,0,0,.22)}
+  footer p{margin:.3rem 0;color:var(--hell)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-innen">
+    <h1>Eriks Raspberry-Pi-Werkstatt&nbsp;🍓</h1>
+    <p class="unter">Du baust dir eine echte Wetterstation und einen Foto-Rahmen — auf deinem eigenen kleinen Computer. So soll dein Display am Ende aussehen:</p>
+    <div class="display" role="img" aria-label="Vorschau: das 3,5-Zoll-Display zeigt die fertige Wetterstation mit Temperatur und Sonne">
+      <svg viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="480" height="320" fill="#19468C"/>
+        <text x="20" y="36" fill="#FFFFFF" font-family="Baloo 2, sans-serif" font-size="20">Schwieberdingen</text>
+        <text x="404" y="36" fill="#FFFFFF" font-family="Baloo 2, sans-serif" font-size="20">15:42</text>
+        <text x="20" y="66" fill="#FFD200" font-family="Baloo 2, sans-serif" font-size="20">Zimmer: 23°</text>
+        <text x="24" y="182" fill="#FFFFFF" font-family="Baloo 2, sans-serif" font-size="96" font-weight="800">21°</text>
+        <g stroke="#FFD200" stroke-width="6" stroke-linecap="round">
+          <line x1="360" y1="85" x2="360" y2="68"/><line x1="360" y1="175" x2="360" y2="192"/>
+          <line x1="315" y1="130" x2="298" y2="130"/><line x1="405" y1="130" x2="422" y2="130"/>
+          <line x1="329" y1="99" x2="317" y2="87"/><line x1="391" y1="99" x2="403" y2="87"/>
+          <line x1="329" y1="161" x2="317" y2="173"/><line x1="391" y1="161" x2="403" y2="173"/>
+        </g>
+        <circle cx="360" cy="130" r="38" fill="#FFD200"/>
+        <text x="24" y="236" fill="#FFFFFF" font-family="Baloo 2, sans-serif" font-size="34">Sonnig</text>
+        <text x="24" y="288" fill="#DCE4F5" font-family="Baloo 2, sans-serif" font-size="20">Heute: 12° bis 24°   |   Wind: 9 km/h</text>
+      </svg>
+      <div class="steg"></div>
+    </div>
+    <ul class="projekte">
+      <li>⛅ Wetterstation</li>
+      <li>📷 Foto-Rahmen</li>
+      <li>🌡️ Bonus: micro:bit</li>
+    </ul>
+  </div>
+</header>
+
+<nav class="kapnav" aria-label="Kapitel">
+  <div class="nav-innen">
+    <a href="#start">👋 Start</a>
+    <a href="#k1" data-chip="k1">1 · Erstes Programm</a>
+    <a href="#k2" data-chip="k2">2 · Malen</a>
+    <a href="#k3" data-chip="k3">3 · Wetterstation</a>
+    <a href="#k4" data-chip="k4">4 · Foto-Rahmen</a>
+    <a href="#bonus" data-chip="bonus">🌡️ Bonus</a>
+    <a href="#ideen">💡 Ideen</a>
+    <a href="#hilfe">🔧 Hilfe</a>
+  </div>
+</nav>
+
+<main>
+
+  <details class="papa">
+    <summary>🔧 Teil 0 — Für Papa (Einrichtung, bitte zuerst)</summary>
+    <p><strong>Warum Python und nicht MakeCode?</strong> MakeCode läuft im Browser und programmiert kleine Chips wie den micro:bit — auf dem Raspberry Pi selbst gibt es kein MakeCode. Der Pi ist ein richtiger Computer, und dort ist Python die natürliche Kindersprache. Damit der Umstieg leichtfällt, zeigt jedes Kapitel zuerst, welcher MakeCode-Block gemeint wäre, und dann die Python-Zeile dazu. Erik tippt in <strong>Thonny</strong> (vorinstalliert) — kurze Programme, jedes sofort startbar. Der MakeCode-Editor selbst läuft trotzdem im Chromium-Browser des Pi — im Bonus-Kapitel verbinden wir beide Welten.</p>
+    <p><strong>Hardware:</strong> Raspberry Pi (3B+, 4 oder 5), das 3,5"-Touch-Shield, microSD-Karte (ab 16&nbsp;GB), Netzteil, für die Einrichtung einmalig ein HDMI-Monitor mit Maus/Tastatur, ein SD-Kartenleser für die Kamerafotos. Für das Bonus-Kapitel zusätzlich: ein micro:bit samt USB-Datenkabel.</p>
+    <h3>Einmalige Einrichtung (ca. 45 Minuten)</h3>
+    <ol>
+      <li><strong>System aufspielen:</strong> Raspberry Pi Imager → „Raspberry Pi OS (64-bit)" mit Desktop. In den Einstellungen (Zahnrad) Benutzername <code>erik</code>, WLAN und Sprache gleich eintragen. <em>Bei anderem Benutzernamen die Pfade <code>/home/erik/…</code> in den Programmen anpassen.</em></li>
+      <li><strong>Erster Start ohne Display-Aufsatz</strong>, dafür mit HDMI-Monitor. (Das SPI-Shield zeigt vor der Konfiguration nur ein weißes Bild — das ist normal, nichts ist kaputt.)</li>
+      <li><strong>Display aktivieren — es ist das BerryBase RPI-35LCD:</strong> Ein Waveshare-Klon (Display-Controller ILI9486, Touch-Controller XPT2046). Der passende Treiber („piscreen") steckt bereits im aktuellen Raspberry Pi OS — es muss nichts installiert werden, nur eine Zeile in die Konfiguration. Im Terminal <code>sudo nano /boot/firmware/config.txt</code> öffnen und ganz unten ergänzen:
+<pre><code>dtoverlay=piscreen,speed=16000000,rotate=270,driver=ili9486,bgr=1</code></pre>
+      Speichern (Strg+O, Enter, Strg+X), herunterfahren, Display aufstecken, neu starten — der Desktop erscheint auf dem kleinen Display. Ist das Bild falsch herum, den Wert bei <code>rotate=</code> ändern (0/90/180/270).</li>
+      <li><strong>Falls der Desktop nicht auf dem LCD erscheint:</strong> <code>sudo raspi-config</code> → <em>Advanced Options</em> → <em>Wayland</em> → <strong>X11</strong> wählen und neu starten — manche Setups brauchen das noch. ⚠️ <strong>Nicht</strong> die alten Installations-Skripte aus der Waveshare-Anleitung bzw. „LCD-show" ausführen: Auf neueren Pis (4/5) und aktuellem OS können die das System unbrauchbar machen. Die eine config.txt-Zeile ersetzt sie komplett.</li>
+      <li><strong>Touch prüfen:</strong> Sind die Achsen vertauscht (tippen rechts unten, Klick landet links oben — bekanntes Verhalten bei diesen Panels), an die dtoverlay-Zeile <code>,swapxy=1</code> anhängen; feinjustieren mit <code>,invx=1</code> bzw. <code>,invy=1</code>. Nach jeder Änderung neu starten.</li>
+      <li><strong>Bibliotheken installieren</strong> (im Terminal):
+<pre><code>sudo apt install -y python3-pygame python3-requests python3-serial</code></pre></li>
+      <li><strong>Foto-Ordner anlegen:</strong> Ordner <code>/home/erik/Fotos</code> erstellen und Fotos von Eriks Kamera-SD-Karte hineinkopieren (JPG oder PNG).</li>
+      <li><strong>Programme aufs Pi holen</strong> (im Terminal):
+<pre><code>git clone https://github.com/flblumeroth/erik-pi-werkstatt.git</code></pre>
+      Danach liegen Tutorial und alle fertigen Programme unter <code>/home/erik/erik-pi-werkstatt/</code>, die Musterlösungen im Unterordner <code>code/</code>. Die Wetter-Koordinaten sind schon auf Schwieberdingen eingestellt.</li>
+    </ol>
+    <p><strong>Plan B, falls es gar nicht will:</strong> Mit dem Image „Raspberry Pi OS (Legacy)" (Bullseye) und der Waveshare-/LCD-show-Anleitung laufen diese Displays klassisch — das ist aber wirklich nur die Notlösung. Und: Entwickeln geht jederzeit auch am HDMI-Monitor — das kleine Display ist nur die Bühne für das fertige Projekt.</p>
+    <p><strong>Optional — Autostart des Foto-Rahmens:</strong> In die Datei <code>/etc/xdg/lxsession/LXDE-pi/autostart</code> diese Zeile eintragen: <code>@python3 /home/erik/erik-pi-werkstatt/code/fotoanzeige.py</code> — dann startet der Bilderrahmen beim Einschalten von selbst.</p>
+  </details>
+
+  <section id="start">
+    <h2>👋 Hallo Erik!</h2>
+    <p>Du kennst schon MakeCode-Blöcke — super! Auf deinem Raspberry Pi schreibst du dieselben Ideen jetzt als <strong>Text</strong>. Das ist wie Blöcke tippen statt ziehen. Alle fertigen Programme findest du im Ordner <a href="code/">code/</a> — erst selbst probieren, dann vergleichen! Hier ist dein Spickzettel:</p>
+    <div class="tabelle">
+      <table>
+        <tr><th>In MakeCode (Block)</th><th>In Python (Text)</th></tr>
+        <tr><td>„zeige Text <em>Hallo</em>"</td><td><code>print("Hallo")</code></td></tr>
+        <tr><td>„setze <em>zahl</em> auf 5"</td><td><code>zahl = 5</code></td></tr>
+        <tr><td>„wenn … dann"</td><td><code>if zahl &gt; 3:</code></td></tr>
+        <tr><td>„dauerhaft / wiederhole endlos"</td><td><code>while True:</code></td></tr>
+        <tr><td>„pausiere 1000 ms"</td><td><code>time.sleep(1)</code></td></tr>
+      </table>
+    </div>
+    <div class="merk">
+      <strong>Drei Regeln, die Python streng nimmt:</strong>
+      <ol>
+        <li>Nach <code>if</code>, <code>while</code> und <code>def</code> kommt ein <strong>Doppelpunkt :</strong></li>
+        <li>Alles, was „im Block drinsteckt", wird <strong>eingerückt</strong> (4 Leerzeichen — Thonny macht das automatisch)</li>
+        <li>Text steht immer in <strong>Anführungszeichen</strong> <code>"so"</code></li>
+      </ol>
+    </div>
+    <p>Wenn etwas nicht klappt: <strong>Fehlermeldungen sind Hinweise, keine Strafe!</strong> Lies die letzte Zeile — dort steht meistens die Zeilennummer, in der Python gestolpert ist.</p>
+  </section>
+
+  <section id="k1">
+    <h2><span class="nr">1</span> Dein erstes Python-Programm <span class="klein">(5 Minuten)</span></h2>
+    <p>Öffne <strong>Thonny</strong> (Himbeere-Menü → Entwicklung → Thonny). Tippe oben ins große Feld:</p>
+<pre><code>name = "Erik"
+print("Hallo " + name + "!")
+print("Du programmierst jetzt einen echten Computer.")</code></pre>
+    <p>Klicke auf den <strong>grünen Pfeil</strong> (oder F5), speichere als <code>hallo.py</code>. Unten erscheint deine Ausgabe. Das war dein erstes echtes Python-Programm! 🎉</p>
+    <label class="geschafft"><input type="checkbox" data-kap="k1"> Kapitel 1 geschafft!</label>
+  </section>
+
+  <section id="k2">
+    <h2><span class="nr">2</span> Malen auf dem Bildschirm <span class="klein">(10 Minuten)</span></h2>
+    <p>Für Bilder benutzen wir <strong>pygame</strong>. Stell dir den Bildschirm als Blatt Kästchenpapier vor: <strong>480 Kästchen breit, 320 hoch</strong>. Oben links ist (0, 0), unten rechts (480, 320).</p>
+    <p>Neue Datei, speichere sie als <code>malen.py</code>:</p>
+<pre><code>import pygame
+
+pygame.init()
+bildschirm = pygame.display.set_mode((480, 320))
+
+bildschirm.fill((25, 70, 130))                              # Himmel
+pygame.draw.circle(bildschirm, (255, 210, 0), (240, 120), 50)  # Sonne
+pygame.display.flip()                                       # zeig alles an!
+
+# Warten, bis du das Fenster schliesst oder ESC drueckst
+laeuft = True
+while laeuft:
+    for ereignis in pygame.event.get():
+        if ereignis.type == pygame.QUIT:
+            laeuft = False
+        if ereignis.type == pygame.KEYDOWN and ereignis.key == pygame.K_ESCAPE:
+            laeuft = False
+
+pygame.quit()</code></pre>
+    <p>Die drei Zahlen bei den Farben sind <strong>Rot, Grün, Blau</strong> (je 0 bis 255). Probier aus:</p>
+    <ul>
+      <li>Ändere die Farbe der Sonne</li>
+      <li>Verschieb die Sonne: <code>(240, 120)</code> sind ihre x- und y-Position</li>
+      <li>Mal ein Rechteck als Wiese dazu: <code>pygame.draw.rect(bildschirm, (60, 160, 60), (0, 260, 480, 60))</code></li>
+    </ul>
+    <label class="geschafft"><input type="checkbox" data-kap="k2"> Kapitel 2 geschafft!</label>
+  </section>
+
+  <section id="k3">
+    <h2><span class="nr">3</span> Projekt A: Die Wetterstation ⛅</h2>
+
+    <h3>Schritt 1: Das Wetter aus dem Internet holen</h3>
+    <p>Im Internet gibt es Wetter-Auskünfte für Computer, sogenannte <strong>APIs</strong>. Wir fragen „Open-Meteo" — die antwortet mit Zahlen für deinen Ort. Neue Datei <code>wetter_test.py</code>:</p>
+<pre><code>import requests
+
+url = ("https://api.open-meteo.com/v1/forecast"
+       "?latitude=48.88&amp;longitude=9.07"
+       "&amp;current=temperature_2m,weather_code,wind_speed_10m")
+
+antwort = requests.get(url)
+daten = antwort.json()
+
+print(daten["current"]["temperature_2m"], "Grad")
+print("Wind:", daten["current"]["wind_speed_10m"], "km/h")</code></pre>
+    <p>Starte es — du siehst die <strong>echte Temperatur in Schwieberdingen, genau jetzt</strong>. Die Antwort ist wie ein Schrank mit Schubladen: <code>daten["current"]["temperature_2m"]</code> heißt „öffne die Schublade <em>current</em>, darin die Schublade <em>temperature_2m</em>".</p>
+    <p>Es gibt auch eine Schublade <code>weather_code</code> — eine Nummer für das Wetter: <strong>0 = sonnig, 3 = bewölkt, 61 = Regen, 71 = Schnee, 95 = Gewitter.</strong> Lass sie dir mit <code>print</code> ausgeben!</p>
+
+    <h3>Schritt 2: Groß und schön anzeigen</h3>
+    <p>Jetzt kombinieren wir Kapitel 2 und Schritt 1: Wetter holen <strong>und</strong> mit pygame malen. Dafür brauchst du Schrift:</p>
+<pre><code>schrift = pygame.font.SysFont(None, 120)          # 120 = riesig
+text = schrift.render("21" + "\u00b0", True, (255, 255, 255))
+bildschirm.blit(text, (30, 90))                   # an Position x=30, y=90 kleben</code></pre>
+    <p><code>render</code> malt den Text auf einen unsichtbaren Zettel, <code>blit</code> klebt den Zettel auf den Bildschirm.</p>
+
+    <h3>Schritt 3: Wettersymbole selbst malen</h3>
+    <p>Statt fertiger Bildchen malen wir die Symbole aus Formen — wie in Kapitel 2:</p>
+    <ul>
+      <li><strong>Sonne</strong> = Kreis + 8 Striche als Strahlen</li>
+      <li><strong>Wolke</strong> = drei Kreise + ein Rechteck darunter</li>
+      <li><strong>Regen</strong> = Wolke + drei schräge blaue Striche</li>
+      <li><strong>Gewitter</strong> = Wolke + gelbes Zickzack (<code>pygame.draw.polygon</code>)</li>
+    </ul>
+    <p>Und mit <code>if</code> entscheidet dein Programm, welches Symbol dran ist:</p>
+<pre><code>if code == 0:
+    sonne_malen(bildschirm, 360, 130)
+elif code &lt;= 3:
+    wolke_malen(bildschirm, 360, 130)</code></pre>
+
+    <h3>Schritt 4: Alles zusammen</h3>
+    <p>Die fertige Wetterstation steht in der Datei <a href="code/wetterstation.py"><code>code/wetterstation.py</code></a> — öffne sie in Thonny und starte sie. Sie holt alle 10 Minuten neues Wetter, und wenn du auf den Bildschirm <strong>tippst</strong>, sofort. Lies sie einmal von oben nach unten durch: Du wirst fast alles wiedererkennen. Ändere etwas! Zum Beispiel die Hintergrundfarbe, oder bei <code>NEU_LADEN_ALLE</code> die 10 Minuten.</p>
+    <label class="geschafft"><input type="checkbox" data-kap="k3"> Wetterstation läuft!</label>
+  </section>
+
+  <section id="k4">
+    <h2><span class="nr">4</span> Projekt B: Dein Foto-Rahmen 📷</h2>
+
+    <h3>Schritt 1: Ein Foto anzeigen</h3>
+    <p>Deine Kamerafotos liegen im Ordner <code>/home/erik/Fotos</code>. Neue Datei <code>foto_test.py</code>:</p>
+<pre><code>import pygame
+
+pygame.init()
+bildschirm = pygame.display.set_mode((480, 320))
+
+bild = pygame.image.load("/home/erik/Fotos/mein_foto.jpg")   # Namen anpassen!
+bild = pygame.transform.smoothscale(bild, (480, 320))        # passend machen
+bildschirm.blit(bild, (0, 0))
+pygame.display.flip()
+
+laeuft = True
+while laeuft:
+    for ereignis in pygame.event.get():
+        if ereignis.type == pygame.QUIT:
+            laeuft = False
+
+pygame.quit()</code></pre>
+    <p>Fällt dir was auf? Das Foto sieht vielleicht <strong>gequetscht</strong> aus, weil Kamerafotos ein anderes Format haben als der Bildschirm. Im fertigen Programm rechnen wir deshalb aus, wie groß das Foto sein darf, <strong>ohne</strong> verzerrt zu werden:</p>
+<pre><code>faktor = min(480 / breite, 320 / hoehe)</code></pre>
+    <p><code>min</code> nimmt die kleinere der beiden Zahlen — so passt das Foto garantiert komplett aufs Display.</p>
+
+    <h3>Schritt 2: Blättern und Diashow</h3>
+    <p>Das fertige Programm steht in <a href="code/fotoanzeige.py"><code>code/fotoanzeige.py</code></a>. Es kann:</p>
+    <ul>
+      <li>alle Fotos aus dem Ordner finden (<code>os.listdir</code>)</li>
+      <li>rechts tippen → nächstes Foto, links tippen → zurück</li>
+      <li>nach 10 Sekunden automatisch weiterblättern</li>
+      <li>nach dem letzten Foto wieder von vorn anfangen — der Trick dafür ist <code>nummer % len(fotos)</code> (der Rest beim Teilen: nach Foto 7 von 7 kommt wieder Foto 0)</li>
+    </ul>
+    <p>Starte es, tippe dich durch deine Fotos — und dann bau es um: Ändere <code>WECHSEL_NACH</code> auf 3 Sekunden. Schaffst du es, dass beim Tippen <strong>oben</strong> am Bildschirm das Programm zur Wetterstation wechselt? (Tipp: <code>ereignis.pos[1]</code> ist die y-Position deines Fingers.)</p>
+    <label class="geschafft"><input type="checkbox" data-kap="k4"> Foto-Rahmen läuft!</label>
+  </section>
+
+  <section id="bonus">
+    <h2>🌡️ Bonus: Dein micro:bit wird Wettersensor</h2>
+    <p>Jetzt verbindest du deine MakeCode-Blöcke mit deinem neuen Python: Das micro:bit misst die <strong>echte Temperatur in deinem Zimmer</strong> und schickt sie durchs USB-Kabel an den Pi — und deine Wetterstation zeigt sie an. Blöcke fürs Messen, Python fürs Anzeigen!</p>
+
+    <h3>Schritt 1: Das micro:bit programmieren (in MakeCode!)</h3>
+    <p>Öffne auf dem Pi den Browser (Chromium) und gehe wie gewohnt auf makecode.microbit.org. Baue dieses Mini-Programm:</p>
+    <ul>
+      <li>Block <strong>„dauerhaft"</strong></li>
+      <li>Hinein den Block <strong>„schreibe seriell Wert"</strong> (versteckt unter <em>Fortgeschritten → Serielle Kommunikation</em>): Als Namen <code>zimmer</code> eintippen, als Wert den Block <strong>„Temperatur (°C)"</strong> aus <em>Eingabe</em> einsetzen</li>
+      <li>Darunter <strong>„pausiere (ms) 5000"</strong></li>
+    </ul>
+    <p>In JavaScript sieht dasselbe so aus:</p>
+<pre><code>basic.forever(function () {
+    serial.writeValue("zimmer", input.temperature())
+    basic.pause(5000)
+})</code></pre>
+    <p>Übertrage es aufs micro:bit — das geht direkt vom Pi aus — und lass das micro:bit danach per USB am Pi eingesteckt. Es schickt jetzt alle 5 Sekunden eine Nachricht wie <code>zimmer:23</code> durchs Kabel.</p>
+
+    <h3>Schritt 2: Auf dem Pi lauschen</h3>
+    <p>Starte in Thonny das Programm <a href="code/zimmertemperatur_test.py"><code>code/zimmertemperatur_test.py</code></a>. Unten sollte erscheinen:</p>
+<pre><code>micro:bit sagt: zimmer:23</code></pre>
+    <p>Halte einen Finger auf den Prozessor des micro:bit — die Zahl steigt! (Das micro:bit misst nämlich die Temperatur seines eigenen Chips.)</p>
+    <p>Der neue Baustein heißt <code>serial</code> — er liest, was durchs USB-Kabel ankommt. Das Kabel meldet sich am Pi unter dem Namen <code>/dev/ttyACM0</code>. Kommt eine Fehlermeldung mit „Permission denied", muss Papa einmal <code>sudo usermod -a -G dialout erik</code> ausführen und du meldest dich neu an.</p>
+
+    <h3>Schritt 3: In die Wetterstation einbauen</h3>
+    <p>Die fertige Kombi-Version heißt <a href="code/wetterstation_mit_microbit.py"><code>code/wetterstation_mit_microbit.py</code></a>. Sie ist fast identisch mit deiner Wetterstation — vergleiche die beiden Dateien und finde die Unterschiede! Es sind nur drei Stellen (alle mit <code>NEU</code> markiert):</p>
+    <ol>
+      <li>Oben: <code>import serial</code> und die Verbindung zum micro:bit öffnen</li>
+      <li>In der Schleife: nachschauen, ob eine neue <code>zimmer:</code>-Nachricht angekommen ist</li>
+      <li>Beim Malen: die Zimmertemperatur in Gelb unter den Stadtnamen schreiben</li>
+    </ol>
+    <p>Das Beste: Ist gerade <strong>kein</strong> micro:bit angesteckt, läuft die Wetterstation trotzdem ganz normal — dafür sorgt das <code>try:</code> beim Verbinden („versuch es, und wenn's nicht klappt, mach einfach ohne weiter").</p>
+    <label class="geschafft"><input type="checkbox" data-kap="bonus"> Bonus geschafft — beide Welten verbunden!</label>
+  </section>
+
+  <section id="ideen">
+    <h2>💡 Ideen zum Weiterbauen</h2>
+    <p>Wenn beide Projekte laufen, bist du offiziell Raspberry-Pi-Programmierer. Nächste Stufen:</p>
+    <ol>
+      <li><strong>Uhr im Foto-Rahmen:</strong> Uhrzeit klein in die Ecke der Fotos schreiben (<code>time.strftime("%H:%M")</code>)</li>
+      <li><strong>Oma-Wetter:</strong> Zweite Stadt anzeigen — einfach andere Koordinaten in die URL</li>
+      <li><strong>Zufalls-Diashow:</strong> <code>import random</code> und <code>random.shuffle(fotos)</code></li>
+      <li><strong>Vorhersage:</strong> Open-Meteo kann auch die nächsten Tage — Schubladen <code>daily</code></li>
+      <li><strong>Noch mehr Sensoren:</strong> Dein micro:bit misst schon die Zimmertemperatur (Bonus-Kapitel) — ein BME280-Sensor kann zusätzlich Luftdruck und Luftfeuchtigkeit messen, dann ist es eine komplette Wetterstation (Projekt für den nächsten Geburtstag 😉)</li>
+    </ol>
+  </section>
+
+  <section id="hilfe">
+    <h2>🔧 Wenn etwas nicht klappt</h2>
+    <div class="tabelle">
+      <table>
+        <tr><th>Problem</th><th>Wahrscheinliche Ursache</th></tr>
+        <tr><td><code>SyntaxError</code></td><td>Doppelpunkt vergessen oder Anführungszeichen nicht geschlossen</td></tr>
+        <tr><td><code>IndentationError</code></td><td>Einrückung stimmt nicht — alles im Block gleich weit einrücken</td></tr>
+        <tr><td><code>NameError</code></td><td>Tippfehler in einem Namen (<code>bildscrm</code> statt <code>bildschirm</code>)</td></tr>
+        <tr><td>Programm friert ein / Wetter kommt nicht</td><td>Kein Internet — WLAN prüfen</td></tr>
+        <tr><td>„Keine Fotos gefunden"</td><td>Ordnername prüfen: genau <code>/home/erik/Fotos</code>, Fotos als JPG/PNG</td></tr>
+        <tr><td>Display bleibt weiß/schwarz</td><td>config.txt-Zeile fehlt oder Tippfehler darin → Papa fragen (Teil 0)</td></tr>
+        <tr><td>Tippen landet an der falschen Stelle</td><td>Touch-Achsen vertauscht → <code>swapxy=1</code> (Teil 0, Schritt 5)</td></tr>
+        <tr><td>micro:bit wird nicht gefunden</td><td>USB-Kabel prüfen (manche Kabel können nur laden, keine Daten!), micro:bit neu einstecken, bei „Permission denied" → Papa fragen (Bonus-Kapitel)</td></tr>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="fuss-innen">
+    <p><strong>Viel Spaß beim Bauen! 🚀</strong></p>
+    <p class="klein">Gebaut für Erik zum Geburtstag 🎁 · Alle Programme: <a href="https://github.com/flblumeroth/erik-pi-werkstatt">github.com/flblumeroth/erik-pi-werkstatt</a></p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // Fortschritt merken (Haken bleiben beim naechsten Besuch erhalten)
+  var KEY = "erik-pi-werkstatt-fortschritt";
+  var stand = {};
+  try { stand = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {}
+
+  function markiere(kap, an){
+    var chip = document.querySelector('a[data-chip="' + kap + '"]');
+    if (chip) chip.classList.toggle("fertig", !!an);
+  }
+
+  document.querySelectorAll("input[data-kap]").forEach(function(cb){
+    var kap = cb.getAttribute("data-kap");
+    if (stand[kap]) { cb.checked = true; markiere(kap, true); }
+    cb.addEventListener("change", function(){
+      stand[kap] = cb.checked;
+      try { localStorage.setItem(KEY, JSON.stringify(stand)); } catch (e) {}
+      markiere(kap, cb.checked);
+    });
+  });
+
+  // Kopier-Knopf an jedem Code-Zettel
+  document.querySelectorAll("pre").forEach(function(pre){
+    var knopf = document.createElement("button");
+    knopf.className = "kopieren";
+    knopf.type = "button";
+    knopf.textContent = "Kopieren";
+    knopf.addEventListener("click", function(){
+      var text = pre.querySelector("code").innerText;
+      function fertig(){ knopf.textContent = "Kopiert! ✓"; setTimeout(function(){ knopf.textContent = "Kopieren"; }, 1500); }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(fertig, function(){ ersatz(); fertig(); });
+      } else { ersatz(); fertig(); }
+      function ersatz(){
+        var ta = document.createElement("textarea");
+        ta.value = text; document.body.appendChild(ta);
+        ta.select(); document.execCommand("copy"); ta.remove();
+      }
+    });
+    pre.appendChild(knopf);
+  });
+})();
+</script>
+</body>
+</html>
