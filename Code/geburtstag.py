@@ -48,40 +48,40 @@ for _ in range(120):
     neues_konfetti(random.randint(0, 480), random.randint(-320, 0), 1)
 
 laeuft = True
-while laeuft:
+try:
+    while laeuft:
 
-    # 1) Tasten und Beruehrungen pruefen
-    for ereignis in pygame.event.get():
-        if ereignis.type == pygame.QUIT:
-            laeuft = False
-        if ereignis.type == pygame.KEYDOWN and ereignis.key == pygame.K_ESCAPE:
-            laeuft = False
-        if ereignis.type == pygame.MOUSEBUTTONDOWN:
-            neues_konfetti(ereignis.pos[0], ereignis.pos[1], 40)
+        # 1) Tasten und Beruehrungen pruefen
+        for ereignis in pygame.event.get():
+            if ereignis.type == pygame.QUIT:
+                laeuft = False
+            if ereignis.type == pygame.KEYDOWN and ereignis.key == pygame.K_ESCAPE:
+                laeuft = False
+            if ereignis.type == pygame.MOUSEBUTTONDOWN:
+                neues_konfetti(ereignis.pos[0], ereignis.pos[1], 40)
 
-    # 2) Konfetti fallen lassen
-    for stueck in konfetti:
-        stueck["y"] = stueck["y"] + stueck["tempo"]
-        if stueck["y"] > 320:                 # unten raus?
-            stueck["y"] = random.randint(-40, -5)   # oben wieder rein!
-            stueck["x"] = random.randint(0, 480)
+        # 2) Konfetti fallen lassen
+        for stueck in konfetti:
+            stueck["y"] = stueck["y"] + stueck["tempo"]
+            if stueck["y"] > 320:                 # unten raus?
+                stueck["y"] = random.randint(-40, -5)   # oben wieder rein!
+                stueck["x"] = random.randint(0, 480)
 
-    # 3) Alles malen
-    bildschirm.fill(HIMMEL)
-    for stueck in konfetti:
-        pygame.draw.rect(bildschirm, stueck["farbe"],
-                         (stueck["x"], stueck["y"], 6, 10))
+        # 3) Alles malen
+        bildschirm.fill(HIMMEL)
+        for stueck in konfetti:
+            pygame.draw.rect(bildschirm, stueck["farbe"],
+                             (stueck["x"], stueck["y"], 6, 10))
 
-    mittig("Hallo Erik,", schrift_gross, 70, GELB)
-    mittig("herzlichen Gl\u00fcckwunsch", schrift_mittel, 140, WEISS)
-    mittig("zum Geburtstag!", schrift_mittel, 180, WEISS)
-    mittig("Tipp mal auf den Bildschirm ...", schrift_klein, 280, WEISS)
+        mittig("Hallo Erik,", schrift_gross, 70, GELB)
+        mittig("herzlichen Gl\u00fcckwunsch", schrift_mittel, 140, WEISS)
+        mittig("zum Geburtstag!", schrift_mittel, 180, WEISS)
+        mittig("Tipp mal auf den Bildschirm ...", schrift_klein, 280, WEISS)
 
-    pygame.display.flip()
-    takt.tick(30)   # 30 Bilder pro Sekunde
+        pygame.display.flip()
+        takt.tick(30)   # 30 Bilder pro Sekunde
 
-#except KeyboardInterrupt:
-#    pass    # Strg+C in der Konsole = auch ein sauberes Ende
-
+except KeyboardInterrupt:
+    pass    # Strg+C in der Konsole = auch ein sauberes Ende
 
 pygame.quit()
