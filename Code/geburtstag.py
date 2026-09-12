@@ -80,8 +80,8 @@ while laeuft:
     pygame.display.flip()
     takt.tick(30)   # 30 Bilder pro Sekunde
 
-except KeyboardInterrupt:
-    pass    # Strg+C in der Konsole = auch ein sauberes Ende
+#except KeyboardInterrupt:
+#    pass    # Strg+C in der Konsole = auch ein sauberes Ende
 
 
 pygame.quit()
